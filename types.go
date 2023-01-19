@@ -1,10 +1,11 @@
-package session
+package fastsession
 
 import (
 	"sync"
 	"time"
 
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol"
 )
 
 // Config configuration of session manager
@@ -30,7 +31,7 @@ type Config struct {
 
 	// allows you to declare if your cookie should be restricted to a first-party or same-site context.
 	// possible values: lax, strict, none
-	CookieSameSite fasthttp.CookieSameSite
+	CookieSameSite protocol.CookieSameSite
 
 	// sessionID is in url query
 	SessionIDInURLQuery bool
@@ -49,7 +50,7 @@ type Config struct {
 
 	// IsSecureFunc should return whether the communication channel is secure
 	// in order to set the secure flag to true according to Secure flag.
-	IsSecureFunc func(*fasthttp.RequestCtx) bool
+	IsSecureFunc func(*app.RequestContext) bool
 
 	// EncodeFunc session value serialize func
 	EncodeFunc func(src Dict) ([]byte, error)

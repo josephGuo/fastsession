@@ -3,7 +3,7 @@ package postgre
 import (
 	"time"
 
-	"github.com/fasthttp/session/v2/internal/sql"
+	"github.com/josephGuo/fastsession/internal/sql"
 )
 
 // Config provider settings

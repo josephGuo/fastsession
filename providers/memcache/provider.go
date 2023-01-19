@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/bradfitz/gomemcache/memcache"
-	"github.com/valyala/bytebufferpool"
+	"github.com/cloudwego/hertz/pkg/common/bytebufferpool"
 )
 
 var itemPool = &sync.Pool{

@@ -1,10 +1,10 @@
-package session
+package fastsession
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
 )
 
 func Test_NewDefaultConfig(t *testing.T) {
@@ -71,11 +71,13 @@ func TestConfig_defaultSessionIDGenerator(t *testing.T) {
 
 func TestConfig_defaultIsSecureFunc(t *testing.T) {
 	cfg := Config{}
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	secure := cfg.defaultIsSecureFunc(ctx)
 
-	if secure != ctx.IsTLS() {
-		t.Errorf("Config.defaultIsSecureFunc() == %v, want %v", secure, ctx.IsTLS())
+	//if secure != ctx.IsTLS() {
+	IsTLS := string(ctx.URI().Scheme()) == "https"
+	if secure != IsTLS {
+		t.Errorf("Config.defaultIsSecureFunc() == %v, want %v", secure, IsTLS)
 	}
 }

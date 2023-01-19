@@ -3,7 +3,7 @@ package postgre
 import (
 	"fmt"
 
-	"github.com/fasthttp/session/v2/internal/sql"
+	"github.com/josephGuo/fastsession/internal/sql"
 
 	// Import postgres driver
 	_ "github.com/lib/pq"

@@ -1,10 +1,11 @@
-package session
+package fastsession
 
 import (
 	"testing"
 	"time"
 
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol"
 )
 
 func Test_newCookie(t *testing.T) {
@@ -16,7 +17,7 @@ func Test_newCookie(t *testing.T) {
 }
 
 func TestCookie_get(t *testing.T) {
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	cookie := newCookie()
 
 	key := "key"
@@ -30,7 +31,7 @@ func TestCookie_get(t *testing.T) {
 }
 
 func TestCookie_set(t *testing.T) {
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	cookie := newCookie()
 
 	key := "key"
@@ -39,12 +40,12 @@ func TestCookie_set(t *testing.T) {
 	domain := "domain"
 	expiration := 10 * time.Second
 	secure := true
-	samesite := fasthttp.CookieSameSiteLaxMode
+	samesite := protocol.CookieSameSiteLaxMode
 
 	now := time.Now()
 	cookie.set(ctx, key, value, domain, expiration, secure, samesite)
 
-	resultCookie := new(fasthttp.Cookie)
+	resultCookie := new(protocol.Cookie)
 	resultCookie.SetKey(key)
 	ctx.Response.Header.Cookie(resultCookie)
 
@@ -72,7 +73,7 @@ func TestCookie_set(t *testing.T) {
 		t.Errorf("cookie.set() Secure == %v, want %v", resultCookie.Secure(), secure)
 	}
 
-	if resultCookie.SameSite() != fasthttp.CookieSameSiteLaxMode {
+	if resultCookie.SameSite() != protocol.CookieSameSiteLaxMode {
 		t.Errorf("cookie.set() SameSite == %v, want %v", resultCookie.SameSite(), samesite)
 	}
 
@@ -82,7 +83,7 @@ func TestCookie_set(t *testing.T) {
 }
 
 func TestCookie_delete(t *testing.T) {
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	cookie := newCookie()
 
 	key := "key"
@@ -93,7 +94,7 @@ func TestCookie_delete(t *testing.T) {
 	now := time.Now()
 	cookie.delete(ctx, key)
 
-	resultCookie := new(fasthttp.Cookie)
+	resultCookie := new(protocol.Cookie)
 	resultCookie.SetKey(key)
 	ctx.Response.Header.Cookie(resultCookie)
 

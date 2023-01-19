@@ -5,39 +5,40 @@ import (
 	"log"
 	"time"
 
-	"github.com/fasthttp/router"
-	"github.com/fasthttp/session/v2"
-	"github.com/fasthttp/session/v2/providers/memcache"
-	"github.com/fasthttp/session/v2/providers/memory"
-	"github.com/fasthttp/session/v2/providers/mysql"
-	"github.com/fasthttp/session/v2/providers/postgre"
-	"github.com/fasthttp/session/v2/providers/redis"
-	"github.com/fasthttp/session/v2/providers/sqlite3"
-	"github.com/valyala/fasthttp"
+	"github.com/josephGuo/fastsession/providers/memcache"
+	"github.com/josephGuo/fastsession/providers/memory"
+	"github.com/josephGuo/fastsession/providers/mysql"
+	"github.com/josephGuo/fastsession/providers/postgre"
+	"github.com/josephGuo/fastsession/providers/redis"
+	"github.com/josephGuo/fastsession/providers/sqlite3"
+
+	"github.com/josephGuo/fastsession"
+
+	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 const defaultProvider = "memory"
 
-var serverSession *session.Session
+var session *fastsession.Session
 
 func init() {
 	providerName := flag.String("provider", defaultProvider, "Name of provider")
 	flag.Parse()
 
-	encoder := session.Base64Encode
-	decoder := session.Base64Decode
+	encoder := fastsession.Base64Encode
+	decoder := fastsession.Base64Decode
 
-	var provider session.Provider
+	var provider fastsession.Provider
 	var err error
 
 	switch *providerName {
 	case "memory":
-		encoder = session.MSGPEncode
-		decoder = session.MSGPDecode
+		encoder = fastsession.MSGPEncode
+		decoder = fastsession.MSGPDecode
 		provider, err = memory.New(memory.Config{})
 	case "redis":
-		encoder = session.MSGPEncode
-		decoder = session.MSGPDecode
+		encoder = fastsession.MSGPEncode
+		decoder = fastsession.MSGPDecode
 		provider, err = redis.New(redis.Config{
 			KeyPrefix:   "session",
 			Addr:        "127.0.0.1:6379",
@@ -45,8 +46,8 @@ func init() {
 			IdleTimeout: 30 * time.Second,
 		})
 	case "memcache":
-		encoder = session.MSGPEncode
-		decoder = session.MSGPDecode
+		encoder = fastsession.MSGPEncode
+		decoder = fastsession.MSGPDecode
 		provider, err = memcache.New(memcache.Config{
 			KeyPrefix: "session",
 			ServerList: []string{
@@ -71,12 +72,12 @@ func init() {
 		log.Fatal(err)
 	}
 
-	cfg := session.NewDefaultConfig()
+	cfg := fastsession.NewDefaultConfig()
 	cfg.EncodeFunc = encoder
 	cfg.DecodeFunc = decoder
-	serverSession = session.New(cfg)
+	session = fastsession.New(cfg)
 
-	if err = serverSession.SetProvider(provider); err != nil {
+	if err = session.SetProvider(provider); err != nil {
 		log.Fatal(err)
 	}
 
@@ -84,7 +85,9 @@ func init() {
 }
 
 func main() {
-	r := router.New()
+	h := server.Default(server.WithHostPorts("127.0.0.1:8086"), server.WithExitWaitTime(3*time.Second))
+
+	r := h.Engine
 	r.GET("/", indexHandler)
 	r.GET("/set", setHandler)
 	r.GET("/get", getHandler)
@@ -97,11 +100,5 @@ func main() {
 	r.GET("/setexpiration", setExpirationHandler)
 	r.GET("/getexpiration", getExpirationHandler)
 
-	addr := "0.0.0.0:8086"
-	log.Println("Session example server listen: http://" + addr)
-
-	err := fasthttp.ListenAndServe(addr, r.Handler)
-	if err != nil {
-		log.Fatal(err)
-	}
+	h.Spin()
 }

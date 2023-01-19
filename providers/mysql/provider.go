@@ -3,7 +3,7 @@ package mysql
 import (
 	"fmt"
 
-	"github.com/fasthttp/session/v2/internal/sql"
+	"github.com/josephGuo/fastsession/internal/sql"
 
 	// Import mysql driver
 	_ "github.com/go-sql-driver/mysql"

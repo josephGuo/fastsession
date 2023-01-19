@@ -1,8 +1,8 @@
-package session
+package fastsession
 
 import (
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/savsgio/gotils/bytes"
-	"github.com/valyala/fasthttp"
 )
 
 // NewDefaultConfig returns a new default configuration
@@ -33,6 +33,7 @@ func (c *Config) defaultSessionIDGenerator() []byte {
 	return bytes.Rand(make([]byte, c.cookieLen))
 }
 
-func (c *Config) defaultIsSecureFunc(ctx *fasthttp.RequestCtx) bool {
-	return ctx.IsTLS()
+func (c *Config) defaultIsSecureFunc(ctx *app.RequestContext) bool {
+	//return ctx.IsTLS()
+	return string(ctx.Request.URI().Scheme()) == "https"
 }

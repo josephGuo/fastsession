@@ -1,14 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
 // index handler
-func indexHandler(ctx *fasthttp.RequestCtx) {
+func indexHandler(_ context.Context, ctx *app.RequestContext) {
 	html := "<h2>Welcome to use session, you should request to the: </h2>"
 
 	html += `> <a href="/">/</a><br>`
@@ -26,15 +28,15 @@ func indexHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // set handler
-func setHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func setHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 	defer func() {
-		if err := serverSession.Save(ctx, store); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		if err := session.Save(ctx, store); err != nil {
+			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 	}()
 
@@ -44,15 +46,15 @@ func setHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // get handler
-func getHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func getHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 	defer func() {
-		if err := serverSession.Save(ctx, store); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		if err := session.Save(ctx, store); err != nil {
+			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 	}()
 
@@ -66,15 +68,15 @@ func getHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // delete handler
-func deleteHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func deleteHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 	defer func() {
-		if err := serverSession.Save(ctx, store); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		if err := session.Save(ctx, store); err != nil {
+			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 	}()
 
@@ -89,15 +91,15 @@ func deleteHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // get all handler
-func getAllHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func getAllHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 	defer func() {
-		if err := serverSession.Save(ctx, store); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		if err := session.Save(ctx, store); err != nil {
+			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 	}()
 
@@ -114,15 +116,15 @@ func getAllHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // flush handle
-func flushHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func flushHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 	defer func() {
-		if err := serverSession.Save(ctx, store); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		if err := session.Save(ctx, store); err != nil {
+			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 	}()
 
@@ -136,10 +138,10 @@ func flushHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // destroy handle
-func destroyHandler(ctx *fasthttp.RequestCtx) {
-	err := serverSession.Destroy(ctx)
+func destroyHandler(_ context.Context, ctx *app.RequestContext) {
+	err := session.Destroy(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 
@@ -147,15 +149,15 @@ func destroyHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // get sessionID handle
-func sessionIDHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func sessionIDHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 	defer func() {
-		if err := serverSession.Save(ctx, store); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		if err := session.Save(ctx, store); err != nil {
+			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 	}()
 
@@ -165,15 +167,15 @@ func sessionIDHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // regenerate handler
-func regenerateHandler(ctx *fasthttp.RequestCtx) {
-	if err := serverSession.Regenerate(ctx); err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+func regenerateHandler(_ context.Context, ctx *app.RequestContext) {
+	if err := session.Regenerate(ctx); err != nil {
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 
-	store, err := serverSession.Get(ctx)
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 
@@ -182,10 +184,10 @@ func regenerateHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // get expiration handler
-func getExpirationHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func getExpirationHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 
@@ -196,21 +198,21 @@ func getExpirationHandler(ctx *fasthttp.RequestCtx) {
 }
 
 // set expiration handler
-func setExpirationHandler(ctx *fasthttp.RequestCtx) {
-	store, err := serverSession.Get(ctx)
+func setExpirationHandler(_ context.Context, ctx *app.RequestContext) {
+	store, err := session.Get(ctx)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 	defer func() {
-		if err := serverSession.Save(ctx, store); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		if err := session.Save(ctx, store); err != nil {
+			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 	}()
 
 	err = store.SetExpiration(30 * time.Second)
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.AbortWithError(consts.StatusInternalServerError, err)
 		return
 	}
 

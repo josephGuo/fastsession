@@ -1,4 +1,4 @@
-package session
+package fastsession
 
 import (
 	"bytes"
@@ -9,7 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol"
 )
 
 type mockProvider struct {
@@ -155,7 +156,7 @@ func TestSession_stopGC(t *testing.T) {
 }
 
 func TestSession_setHTTPValues(t *testing.T) {
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	s := New(Config{
 		SessionIDInHTTPHeader: true,
 	})
@@ -163,7 +164,12 @@ func TestSession_setHTTPValues(t *testing.T) {
 
 	s.setHTTPValues(ctx, id, 100*time.Millisecond)
 
-	if ctx.Response.Header.PeekCookie(s.config.CookieName) == nil {
+	//if ctx.Response.Header.PeekCookie(s.config.CookieName) == nil {
+	cookie := protocol.AcquireCookie()
+	defer protocol.ReleaseCookie(cookie)
+	cookie.Reset()
+	cookie.SetKey(s.config.CookieName)
+	if ctx.Response.Header.Cookie(cookie) {
 		t.Error("Session.setHTTPValues() response cookie is not setted")
 	}
 
@@ -181,7 +187,7 @@ func TestSession_setHTTPValues(t *testing.T) {
 }
 
 func TestSession_delHTTPValues(t *testing.T) {
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	s := New(Config{
 		SessionIDInHTTPHeader: true,
 	})
@@ -191,7 +197,7 @@ func TestSession_delHTTPValues(t *testing.T) {
 
 	s.delHTTPValues(ctx)
 
-	resultCookie := new(fasthttp.Cookie)
+	resultCookie := new(protocol.Cookie)
 	resultCookie.SetKey(s.config.CookieName)
 
 	if string(resultCookie.Value()) != "" {
@@ -217,7 +223,7 @@ func TestSession_getSessionID(t *testing.T) {
 	// From cookie
 	s := New(Config{})
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	ctx.Request.Header.SetCookie(s.config.CookieName, id)
 
 	if v := s.getSessionID(ctx); string(v) != id {
@@ -227,7 +233,7 @@ func TestSession_getSessionID(t *testing.T) {
 	// From header
 	s = New(Config{SessionIDInHTTPHeader: true})
 
-	ctx = new(fasthttp.RequestCtx)
+	ctx = new(app.RequestContext)
 	ctx.Request.Header.Set(s.config.SessionNameInHTTPHeader, id)
 
 	if v := s.getSessionID(ctx); string(v) != id {
@@ -237,7 +243,7 @@ func TestSession_getSessionID(t *testing.T) {
 	// From url query
 	s = New(Config{SessionIDInURLQuery: true})
 
-	ctx = new(fasthttp.RequestCtx)
+	ctx = new(app.RequestContext)
 	ctx.Request.SetRequestURI(fmt.Sprintf("/path?%s=%s", s.config.SessionNameInURLQuery, id))
 
 	if v := s.getSessionID(ctx); string(v) != id {
@@ -247,7 +253,7 @@ func TestSession_getSessionID(t *testing.T) {
 
 func TestSession_GetErrNotProvider(t *testing.T) {
 	s := New(Config{})
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	store, err := s.Get(ctx)
 
@@ -268,7 +274,7 @@ func TestSession_GetErrEmptySessionID(t *testing.T) {
 	})
 	s.SetProvider(new(mockProvider))
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	store, err := s.Get(ctx)
 
@@ -286,7 +292,7 @@ func TestSession_GetProviderError(t *testing.T) {
 	provider := &mockProvider{errGet: errors.New("error from provider")}
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	ctx.Request.Header.SetCookie(s.config.CookieName, "aiasdiasd")
 
 	store, err := s.Get(ctx)
@@ -306,7 +312,7 @@ func TestSession_Get(t *testing.T) {
 	provider := new(mockProvider)
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	store, err := s.Get(ctx)
 
@@ -332,7 +338,7 @@ func TestSession_SaveProviderError(t *testing.T) {
 	provider := &mockProvider{errSave: errors.New("error from provider")}
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	store := NewStore()
 
 	err := s.Save(ctx, store)
@@ -347,7 +353,7 @@ func TestSession_Save(t *testing.T) {
 	provider := new(mockProvider)
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	store, err := s.Get(ctx)
 	if err != nil {
@@ -358,7 +364,12 @@ func TestSession_Save(t *testing.T) {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	if ctx.Response.Header.PeekCookie(s.config.CookieName) == nil {
+	//if ctx.Response.Header.PeekCookie(s.config.CookieName) == nil {
+	cookie := protocol.AcquireCookie()
+	defer protocol.ReleaseCookie(cookie)
+	cookie.Reset()
+	cookie.SetKey(s.config.CookieName)
+	if ctx.Response.Header.Cookie(cookie) {
 		t.Error("HTTP values are not setted")
 	}
 
@@ -369,7 +380,7 @@ func TestSession_Save(t *testing.T) {
 
 func TestSession_RegenerateErrNotProvider(t *testing.T) {
 	s := New(Config{})
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	if err := s.Regenerate(ctx); err != errNotSetProvider {
 		t.Errorf("Expected error: %v", errNotSetProvider)
@@ -384,7 +395,7 @@ func TestSession_RegenerateErrEmptySessionID(t *testing.T) {
 	})
 	s.SetProvider(new(mockProvider))
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	ctx.Request.Header.SetCookie(s.config.CookieName, "d32r2f2ecev")
 
 	if err := s.Regenerate(ctx); err != errEmptySessionID {
@@ -397,7 +408,7 @@ func TestSession_RegenerateProviderError(t *testing.T) {
 	provider := &mockProvider{errRegenerate: errors.New("error from provider")}
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	ctx.Request.Header.SetCookie(s.config.CookieName, "d32r2f2ecev")
 
 	if err := s.Regenerate(ctx); err != provider.errRegenerate {
@@ -411,21 +422,34 @@ func TestSession_Regenerate(t *testing.T) {
 	s.SetProvider(provider)
 
 	id := "d32r2f2ecev"
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	ctx.Request.Header.SetCookie(s.config.CookieName, id)
 
 	if err := s.Regenerate(ctx); err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	if string(ctx.Response.Header.PeekCookie(s.config.CookieName)) == id {
+	//if string(ctx.Response.Header.PeekCookie(s.config.CookieName)) == id {
+	cookie := protocol.AcquireCookie()
+	defer protocol.ReleaseCookie(cookie)
+	cookie.Reset()
+	cookie.SetKey(s.config.CookieName)
+	args := ctx.Response.Header.GetCookies()
+	name := []byte(s.config.CookieName)
+	var val string
+	for _, arg := range args {
+		if bytes.Equal(arg.GetKey(), name) {
+			val = string(arg.GetValue())
+		}
+	}
+	if val == id {
 		t.Error("HTTP values are not regenerated")
 	}
 }
 
 func TestSession_DestroyErrNotProvider(t *testing.T) {
 	s := New(Config{})
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	err := s.Destroy(ctx)
 
@@ -439,7 +463,7 @@ func TestSession_DestroyIDNotExist(t *testing.T) {
 	provider := new(mockProvider)
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 
 	err := s.Destroy(ctx)
 
@@ -453,7 +477,7 @@ func TestSession_DestroyProviderError(t *testing.T) {
 	provider := &mockProvider{errDestroy: errors.New("error from provider")}
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	ctx.Request.Header.SetCookie(s.config.CookieName, "asd2324n")
 
 	err := s.Destroy(ctx)
@@ -468,7 +492,7 @@ func TestSession_Destroy(t *testing.T) {
 	provider := new(mockProvider)
 	s.SetProvider(provider)
 
-	ctx := new(fasthttp.RequestCtx)
+	ctx := new(app.RequestContext)
 	ctx.Request.Header.SetCookie(s.config.CookieName, "asd2324n")
 
 	err := s.Destroy(ctx)

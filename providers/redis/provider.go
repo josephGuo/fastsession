@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/cloudwego/hertz/pkg/common/bytebufferpool"
 	"github.com/go-redis/redis/v8"
-	"github.com/valyala/bytebufferpool"
 )
 
 var all = []byte("*")

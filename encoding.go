@@ -1,4 +1,4 @@
-package session
+package fastsession
 
 import (
 	"encoding/base64"

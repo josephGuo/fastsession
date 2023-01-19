@@ -1,21 +1,22 @@
-package session
+package fastsession
 
 import (
 	"time"
 
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol"
 )
 
 func newCookie() *cookie {
 	return new(cookie)
 }
 
-func (c *cookie) get(ctx *fasthttp.RequestCtx, name string) []byte {
+func (c *cookie) get(ctx *app.RequestContext, name string) []byte {
 	return ctx.Request.Header.Cookie(name)
 }
 
-func (c *cookie) set(ctx *fasthttp.RequestCtx, name string, value []byte, domain string, expiration time.Duration, secure bool, sameSite fasthttp.CookieSameSite) {
-	cookie := fasthttp.AcquireCookie()
+func (c *cookie) set(ctx *app.RequestContext, name string, value []byte, domain string, expiration time.Duration, secure bool, sameSite protocol.CookieSameSite) {
+	cookie := protocol.AcquireCookie()
 
 	cookie.SetKey(name)
 	cookie.SetPath("/")
@@ -26,7 +27,7 @@ func (c *cookie) set(ctx *fasthttp.RequestCtx, name string, value []byte, domain
 
 	if expiration >= 0 {
 		if expiration == 0 {
-			cookie.SetExpire(fasthttp.CookieExpireUnlimited)
+			cookie.SetExpire(protocol.CookieExpireUnlimited)
 		} else {
 			cookie.SetExpire(time.Now().Add(expiration))
 		}
@@ -36,17 +37,18 @@ func (c *cookie) set(ctx *fasthttp.RequestCtx, name string, value []byte, domain
 		cookie.SetSecure(true)
 	}
 
-	ctx.Request.Header.SetCookieBytesKV(cookie.Key(), cookie.Value())
+	//ctx.Request.Header.SetCookieBytesKV(cookie.Key(), cookie.Value())
+	ctx.Request.Header.SetCookie(name, string(value))
 	ctx.Response.Header.SetCookie(cookie)
 
-	fasthttp.ReleaseCookie(cookie)
+	protocol.ReleaseCookie(cookie)
 }
 
-func (c *cookie) delete(ctx *fasthttp.RequestCtx, name string) {
+func (c *cookie) delete(ctx *app.RequestContext, name string) {
 	ctx.Request.Header.DelCookie(name)
 	ctx.Response.Header.DelCookie(name)
 
-	cookie := fasthttp.AcquireCookie()
+	cookie := protocol.AcquireCookie()
 	cookie.SetKey(name)
 	cookie.SetValue("")
 	cookie.SetPath("/")
@@ -56,5 +58,5 @@ func (c *cookie) delete(ctx *fasthttp.RequestCtx, name string) {
 	cookie.SetExpire(exp)
 	ctx.Response.Header.SetCookie(cookie)
 
-	fasthttp.ReleaseCookie(cookie)
+	protocol.ReleaseCookie(cookie)
 }

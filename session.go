@@ -1,4 +1,4 @@
-package session
+package fastsession
 
 import (
 	"log"
@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
 )
 
 var (
@@ -96,21 +96,23 @@ func (s *Session) stopGC() {
 	s.stopGCChan <- struct{}{}
 }
 
-func (s *Session) setHTTPValues(ctx *fasthttp.RequestCtx, sessionID []byte, expiration time.Duration) {
+func (s *Session) setHTTPValues(ctx *app.RequestContext, sessionID []byte, expiration time.Duration) {
 	secure := s.config.Secure && s.config.IsSecureFunc(ctx)
 	s.cookie.set(ctx, s.config.CookieName, sessionID, s.config.Domain, expiration, secure, s.config.CookieSameSite)
 
 	if s.config.SessionIDInHTTPHeader {
-		ctx.Request.Header.SetBytesV(s.config.SessionNameInHTTPHeader, sessionID)
+		//ctx.Request.Header.SetBytesV(s.config.SessionNameInHTTPHeader, sessionID)
+		ctx.Request.Header.SetArgBytes([]byte(s.config.SessionNameInHTTPHeader), sessionID, true)
 		ctx.Response.Header.SetBytesV(s.config.SessionNameInHTTPHeader, sessionID)
 	}
 }
 
-func (s *Session) delHTTPValues(ctx *fasthttp.RequestCtx) {
+func (s *Session) delHTTPValues(ctx *app.RequestContext) {
 	s.cookie.delete(ctx, s.config.CookieName)
 
 	if s.config.SessionIDInHTTPHeader {
-		ctx.Request.Header.Del(s.config.SessionNameInHTTPHeader)
+		//ctx.Request.Header.Del(s.config.SessionNameInHTTPHeader)
+		ctx.Request.Header.DelBytes([]byte(s.config.SessionNameInHTTPHeader))
 		ctx.Response.Header.Del(s.config.SessionNameInHTTPHeader)
 	}
 }
@@ -119,7 +121,7 @@ func (s *Session) delHTTPValues(ctx *fasthttp.RequestCtx) {
 // 1. cookie
 // 2. http headers
 // 3. query string
-func (s *Session) getSessionID(ctx *fasthttp.RequestCtx) []byte {
+func (s *Session) getSessionID(ctx *app.RequestContext) []byte {
 	val := ctx.Request.Header.Cookie(s.config.CookieName)
 	if len(val) > 0 {
 		return val
@@ -144,7 +146,7 @@ func (s *Session) getSessionID(ctx *fasthttp.RequestCtx) []byte {
 
 // Get returns the user session
 // if it does not exist, it will be generated
-func (s *Session) Get(ctx *fasthttp.RequestCtx) (*Store, error) {
+func (s *Session) Get(ctx *app.RequestContext) (*Store, error) {
 	if s.provider == nil {
 		return nil, errNotSetProvider
 	}
@@ -183,7 +185,7 @@ func (s *Session) Get(ctx *fasthttp.RequestCtx) (*Store, error) {
 //
 // Warning: Don't use the store after exec this function, because, you will lose the after data
 // For avoid it, defer this function in your request handler
-func (s *Session) Save(ctx *fasthttp.RequestCtx, store *Store) error {
+func (s *Session) Save(ctx *app.RequestContext, store *Store) error {
 	if s.provider == nil {
 		return errNotSetProvider
 	}
@@ -214,7 +216,7 @@ func (s *Session) Save(ctx *fasthttp.RequestCtx, store *Store) error {
 }
 
 // Regenerate generates a new session id to the current user
-func (s *Session) Regenerate(ctx *fasthttp.RequestCtx) error {
+func (s *Session) Regenerate(ctx *app.RequestContext) error {
 	if s.provider == nil {
 		return errNotSetProvider
 	}
@@ -242,7 +244,7 @@ func (s *Session) Regenerate(ctx *fasthttp.RequestCtx) error {
 }
 
 // Destroy destroys the session of the current user
-func (s *Session) Destroy(ctx *fasthttp.RequestCtx) error {
+func (s *Session) Destroy(ctx *app.RequestContext) error {
 	if s.provider == nil {
 		return errNotSetProvider
 	}

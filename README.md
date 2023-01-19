@@ -1,11 +1,11 @@
 # session
 
-[![Test status](https://github.com/fasthttp/session/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/fasthttp/session/actions?workflow=test)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fasthttp/session)](https://goreportcard.com/report/github.com/fasthttp/session)
-[![GoDev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/fasthttp/session/v2)
-[![GitHub release](https://img.shields.io/github/release/fasthttp/session.svg)](https://github.com/fasthttp/session/releases)
+[![Test status](https://github.com/josephGuo/fastsession/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/josephGuo/fastsession/actions?workflow=test)
+[![Go Report Card](https://goreportcard.com/badge/github.com/josephGuo/fastsession)](https://goreportcard.com/report/github.com/josephGuo/fastsession)
+[![GoDev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/josephGuo/fastsession)
+[![GitHub release](https://img.shields.io/github/release/josephGuo/fastsession.svg)](https://github.com/josephGuo/fastsession/releases)
 
-Session implementation for [fasthttp](https://github.com/valyala/fasthttp).
+Session implementation for [hertz](https://github.com/cloudwego/hertz).
 
 See [examples](_examples/) to see how to use it.
 
