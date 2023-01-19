@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -38,6 +39,11 @@ func setHandler(_ context.Context, ctx *app.RequestContext) {
 		if err := session.Save(ctx, store); err != nil {
 			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
+		foo := store.Get("foo")
+		ctx.Response.AppendBodyString(fmt.Sprintf("\nafter store.Set-> session.Save then Get foo is nil:%t", foo == nil))
+		store1, _ := session.Get(ctx)
+		foo = store1.Get("foo")
+		ctx.Response.AppendBodyString(fmt.Sprintf("\nre-run session.Get() obrain new store1  then Get foo is nil:%t", foo == nil))
 	}()
 
 	store.Set("foo", "bar")
@@ -58,7 +64,7 @@ func getHandler(_ context.Context, ctx *app.RequestContext) {
 		}
 	}()
 
-	val := store.Get("foo")
+	val := store.Get("foo1")
 	if val == nil {
 		ctx.SetBodyString("Session GET: foo is nil")
 		return
@@ -104,15 +110,22 @@ func getAllHandler(_ context.Context, ctx *app.RequestContext) {
 	}()
 
 	store.Set("foo1", "bar1")
-	store.Set("foo2", 2)
+	store.Set("foo2", "2")
 	store.Set("foo3", "bar3")
-	store.Set("foo4", []byte("bar4"))
+	store.Set("foo4", "bar4")
 
 	data := store.GetAll()
 
 	fmt.Println(data)
-
-	ctx.SetBodyString("Session GetAll: See the OS console!")
+	var sb strings.Builder
+	for k, v := range data.KV {
+		sb.WriteString(k)
+		sb.WriteByte(':')
+		sb.WriteString(v.(string))
+		sb.WriteByte('\n')
+	}
+	ctx.SetBodyString("Session GetAll: See the OS console!\n")
+	ctx.Response.AppendBodyString(sb.String())
 }
 
 // flush handle
