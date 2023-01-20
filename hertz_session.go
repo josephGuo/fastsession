@@ -66,13 +66,18 @@ func buildProvider(providerName string, cfg *Config) Provider {
 }
 
 func NewHertzSession(providerName string, cfg Config) app.HandlerFunc {
+	provider := buildProvider(providerName, &cfg)
 	return func(ctx context.Context, c *app.RequestContext) {
-		provider := buildProvider(providerName, &cfg)
-		s := New(cfg)
-		s.SetProvider(provider)
-		log.Print("Starting example with provider: " + providerName)
-		c.Set(DefaultKey, s)
+		_, exist := c.Get(DefaultKey)
+		if !exist {
+			sessionManager := New(cfg)
+			sessionManager.SetProvider(provider)
+			c.Set(DefaultKey, sessionManager)
+			log.Print("Starting example with provider: " + providerName)
+		}
+		log.Printf("before c.next handler index:%d handlers length:%d\n", c.GetIndex(), len(c.Handlers()))
 		c.Next(ctx)
+		log.Printf("after c.next handler index:%d handlers length:%d\n", c.GetIndex(), len(c.Handlers()))
 	}
 }
 
