@@ -17,6 +17,8 @@ import (
 
 const DefaultKey = "github.com/josephGuo/fastsession"
 
+var atSession *Session
+
 func buildProvider(providerName string, cfg *Config) Provider {
 	var provider Provider
 	var err error
@@ -65,16 +67,23 @@ func buildProvider(providerName string, cfg *Config) Provider {
 	return provider
 }
 
-func NewHertzSession(providerName string, cfg Config) app.HandlerFunc {
+func NewHertzSession(providerName, cookieName string) app.HandlerFunc {
+	cfg := NewDefaultConfig()
+	cfg.CookieName = cookieName
 	provider := buildProvider(providerName, &cfg)
+	atSession := New(cfg)
+	atSession.SetProvider(provider)
 	return func(ctx context.Context, c *app.RequestContext) {
-		_, exist := c.Get(DefaultKey)
-		if !exist {
-			sessionManager := New(cfg)
-			sessionManager.SetProvider(provider)
-			c.Set(DefaultKey, sessionManager)
-			log.Print("Starting example with provider: " + providerName)
+		if atSession == nil {
+			cfg := NewDefaultConfig()
+			cfg.CookieName = cookieName
+			provider := buildProvider(providerName, &cfg)
+			atSession := New(cfg)
+			atSession.SetProvider(provider)
 		}
+		c.Set(DefaultKey, atSession)
+		log.Print("Starting example with provider: " + providerName)
+
 		log.Printf("before c.next handler index:%d handlers length:%d\n", c.GetIndex(), len(c.Handlers()))
 		c.Next(ctx)
 		log.Printf("after c.next handler index:%d handlers length:%d\n", c.GetIndex(), len(c.Handlers()))
