@@ -75,6 +75,7 @@ func init() {
 	cfg := fastsession.NewDefaultConfig()
 	cfg.EncodeFunc = encoder
 	cfg.DecodeFunc = decoder
+	cfg.CookieName = "casdoor_session_id"
 	session = fastsession.New(cfg)
 
 	if err = session.SetProvider(provider); err != nil {

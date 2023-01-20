@@ -81,7 +81,7 @@ func DefaultSession(ctx *app.RequestContext) *Session {
 }
 
 func DefaultStore(ctx *app.RequestContext) *Store {
-	manager := ctx.MustGet(DefaultKey).(*Session)
-	store, _ := manager.Get(ctx)
+	session := ctx.MustGet(DefaultKey).(*Session)
+	store, _ := session.Get(ctx)
 	return store
 }

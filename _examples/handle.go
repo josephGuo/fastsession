@@ -40,10 +40,10 @@ func setHandler(_ context.Context, ctx *app.RequestContext) {
 			ctx.AbortWithError(consts.StatusInternalServerError, err)
 		}
 		foo := store.Get("foo")
-		ctx.Response.AppendBodyString(fmt.Sprintf("\nafter store.Set-> session.Save then Get foo is nil:%t", foo == nil))
+		ctx.Response.AppendBodyString(fmt.Sprintf("\nafter %p->store.Set-> session.Save then Get foo is nil:%t", store, foo == nil))
 		store1, _ := session.Get(ctx)
 		foo = store1.Get("foo")
-		ctx.Response.AppendBodyString(fmt.Sprintf("\nre-run session.Get() obrain new store1  then Get foo is nil:%t", foo == nil))
+		ctx.Response.AppendBodyString(fmt.Sprintf("\nre-run %p->session.Get() obrain new store1  then Get foo is nil:%t", store1, foo == nil))
 	}()
 
 	store.Set("foo", "bar")
@@ -64,7 +64,7 @@ func getHandler(_ context.Context, ctx *app.RequestContext) {
 		}
 	}()
 
-	val := store.Get("foo1")
+	val := store.Get("foo")
 	if val == nil {
 		ctx.SetBodyString("Session GET: foo is nil")
 		return
