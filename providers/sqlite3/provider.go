@@ -3,7 +3,7 @@ package sqlite3
 import (
 	"fmt"
 
-	"github.com/josephGuo/fastsession/internal/sql"
+	"fastsession/internal/sql"
 
 	// Import sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"

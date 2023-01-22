@@ -1,9 +1,9 @@
 # session
 
-[![Test status](https://github.com/josephGuo/fastsession/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/josephGuo/fastsession/actions?workflow=test)
-[![Go Report Card](https://goreportcard.com/badge/github.com/josephGuo/fastsession)](https://goreportcard.com/report/github.com/josephGuo/fastsession)
-[![GoDev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/josephGuo/fastsession)
-[![GitHub release](https://img.shields.io/github/release/josephGuo/fastsession.svg)](https://github.com/josephGuo/fastsession/releases)
+[![Test status](https://fastsession/actions/workflows/test.yml/badge.svg?branch=master)](https://fastsession/actions?workflow=test)
+[![Go Report Card](https://goreportcard.com/badge/fastsession)](https://goreportcard.com/report/fastsession)
+[![GoDev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/fastsession)
+[![GitHub release](https://img.shields.io/github/release/josephGuo/fastsession.svg)](https://fastsession/releases)
 
 Session implementation for [hertz](https://github.com/cloudwego/hertz).
 

@@ -5,17 +5,17 @@ import (
 	"log"
 	"time"
 
-	"github.com/josephGuo/fastsession/providers/memcache"
-	"github.com/josephGuo/fastsession/providers/memory"
-	"github.com/josephGuo/fastsession/providers/mysql"
-	"github.com/josephGuo/fastsession/providers/postgre"
-	"github.com/josephGuo/fastsession/providers/redis"
-	"github.com/josephGuo/fastsession/providers/sqlite3"
+	"fastsession/providers/memcache"
+	"fastsession/providers/memory"
+	"fastsession/providers/mysql"
+	"fastsession/providers/postgre"
+	"fastsession/providers/redis"
+	"fastsession/providers/sqlite3"
 
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
-const DefaultKey = "github.com/josephGuo/fastsession"
+const DefaultKey = "fastsession"
 
 var atSession *Session
 
@@ -68,19 +68,14 @@ func buildProvider(providerName string, cfg *Config) Provider {
 }
 
 func NewHertzSession(providerName, cookieName string) app.HandlerFunc {
-	cfg := NewDefaultConfig()
-	cfg.CookieName = cookieName
-	provider := buildProvider(providerName, &cfg)
-	atSession := New(cfg)
-	atSession.SetProvider(provider)
+	if atSession == nil {
+		cfg := NewDefaultConfig()
+		cfg.CookieName = cookieName
+		provider := buildProvider(providerName, &cfg)
+		atSession := New(cfg)
+		atSession.SetProvider(provider)
+	}
 	return func(ctx context.Context, c *app.RequestContext) {
-		if atSession == nil {
-			cfg := NewDefaultConfig()
-			cfg.CookieName = cookieName
-			provider := buildProvider(providerName, &cfg)
-			atSession := New(cfg)
-			atSession.SetProvider(provider)
-		}
 		c.Set(DefaultKey, atSession)
 		log.Print("Starting example with provider: " + providerName)
 
