@@ -5,14 +5,14 @@ import (
 	"log"
 	"time"
 
-	"fastsession/providers/memcache"
-	"fastsession/providers/memory"
-	"fastsession/providers/mysql"
-	"fastsession/providers/postgre"
-	"fastsession/providers/redis"
-	"fastsession/providers/sqlite3"
+	"github.com/josephGuo/fastsession/providers/memcache"
+	"github.com/josephGuo/fastsession/providers/memory"
+	"github.com/josephGuo/fastsession/providers/mysql"
+	"github.com/josephGuo/fastsession/providers/postgre"
+	"github.com/josephGuo/fastsession/providers/redis"
+	"github.com/josephGuo/fastsession/providers/sqlite3"
 
-	"fastsession"
+	"github.com/josephGuo/fastsession"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 )

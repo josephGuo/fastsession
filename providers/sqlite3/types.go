@@ -3,7 +3,7 @@ package sqlite3
 import (
 	"time"
 
-	"fastsession/internal/sql"
+	"github.com/josephGuo/fastsession/internal/sql"
 )
 
 // Config provider settings
