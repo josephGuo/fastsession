@@ -72,7 +72,7 @@ func NewHertzSession(providerName, cookieName string) app.HandlerFunc {
 		cfg := NewDefaultConfig()
 		cfg.CookieName = cookieName
 		provider := buildProvider(providerName, &cfg)
-		atSession := New(cfg)
+		atSession = New(cfg)
 		atSession.SetProvider(provider)
 	}
 	return func(ctx context.Context, c *app.RequestContext) {
