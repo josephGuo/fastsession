@@ -67,6 +67,7 @@ func buildProvider(providerName string, cfg *Config) Provider {
 	return provider
 }
 
+// param providerName "memory" "redis" "memcache" "mysql" "postgre" "sqlite3"
 func NewHertzSession(providerName, cookieName string) app.HandlerFunc {
 	if atSession == nil {
 		cfg := NewDefaultConfig()
@@ -77,7 +78,7 @@ func NewHertzSession(providerName, cookieName string) app.HandlerFunc {
 	}
 	return func(ctx context.Context, c *app.RequestContext) {
 		c.Set(DefaultKey, atSession)
-		log.Print("Starting example with provider: " + providerName)
+		log.Println("Starting example with provider: " + providerName)
 
 		log.Printf("before c.next handler index:%d handlers length:%d\n", c.GetIndex(), len(c.Handlers()))
 		c.Next(ctx)

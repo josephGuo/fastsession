@@ -82,7 +82,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	log.Print("Starting example with provider: " + *providerName)
+	log.Println("Starting example with provider: " + *providerName)
 }
 
 func main() {
